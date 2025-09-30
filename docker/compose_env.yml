@@ -1,5 +1,13 @@
 services:
-  db:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434" # Exposes Ollama API on localhost:11434
+    volumes:
+      - ./ollama:/root/.ollama # Host-mounted directory for models & configs
+    restart: unless-stopped
+  pgvector:
     build:
       dockerfile: ./psql/postgres.Dockerfile
     restart: always

@@ -1,0 +1,13 @@
+services:
+  db:
+    build:
+      dockerfile: ./psql/postgres.Dockerfile
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: secretpassword
+      POSTGRES_DB: testdb
+    volumes:
+      - ./psql/data/postgres:/var/lib/postgresql/data

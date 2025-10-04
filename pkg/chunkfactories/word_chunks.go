@@ -8,6 +8,7 @@ import (
 
 func WordChunkFactoryFunc(chunkSize, overlap int) create.ChunkFactory {
 	return func(txt string) ([]schema.Document, error) {
+		// TODO
 		return []schema.Document{}, nil // TODO
 	}
 }

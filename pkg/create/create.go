@@ -9,7 +9,7 @@ import (
 )
 
 type TextProviderFunc func() (string, error)
-type ChunkFactory func(txt string) ([]schema.Document, error)
+type ChunkFactory func(text string) ([]schema.Document, error)
 type StoreImpl func(docs []schema.Document, embedder *embeddings.EmbedderImpl) (int, error)
 
 type EmbeddingsFactory struct {

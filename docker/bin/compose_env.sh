@@ -6,17 +6,17 @@ COMPOSE_FILE=$scriptPos/../compose_env.yml
 
 function start() {
   echo "Starting Docker Compose environment..."
-  docker compose -p keycloak_example -f $COMPOSE_FILE up -d
+  docker compose -p go-embeddings -f $COMPOSE_FILE up -d
 }
 
 function stop() {
   echo "Stopping Docker Compose environment..."
-  docker compose -p keycloak_example -f $COMPOSE_FILE down
+  docker compose -p go-embeddings -f $COMPOSE_FILE down
 }
 
 function destroy() {
   echo "Destroying Docker Compose environment..."
-  docker compose -p keycloak_example -f $COMPOSE_FILE down -v
+  docker compose -p go-embeddings -f $COMPOSE_FILE down -v
 }
 
 case "$1" in

@@ -1,0 +1,44 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    command: serve
+    networks:
+      - test_network
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/11434"]
+      interval: 5s
+      timeout: 1s
+      retries: 100
+
+  pgvector:
+    build:
+      dockerfile: ./psql/postgres.Dockerfile
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secretpassword
+      POSTGRES_DB: testdb
+    networks:
+      - test_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 50
+  test_runner:
+    build:
+      context: ..
+      args:
+        DOCKER_BUILDKIT: 1
+      dockerfile: Dockerfile.testrunner
+    depends_on:
+      ollama:
+        condition: service_healthy
+      pgvector:
+        condition: service_healthy
+    networks:
+      - test_network
+
+networks:
+  test_network:
+    driver: bridge

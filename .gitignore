@@ -17,8 +17,13 @@ coverage.*
 *.coverprofile
 profile.cov
 
-data
-docker/ollama
+docker/psql/data
+!docker/psql/data/.gitkeep
+docker/ollama/data
+!docker/ollama/data/.gitkeep
+
+
+**/__debug_bin*
 
 # Dependency directories (remove the comment below to include it)
 # vendor/

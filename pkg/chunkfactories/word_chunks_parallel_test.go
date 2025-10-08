@@ -8,34 +8,34 @@ import (
 	"github.com/tmc/langchaingo/schema"
 )
 
-func TestWordChunkFactoryFunc(t *testing.T) {
+func TestParallelWordChunkFactory(t *testing.T) {
 	tests := []struct {
-		input     string
+		input     []string
 		chunkSize int
 		overlap   int
 		chunks    []schema.Document
 		hasError  bool
 	}{
 		{
-			input:     "xxx",
+			input:     []string{"xxx"},
 			chunkSize: -1,
 			overlap:   10,
 			hasError:  true,
 		},
 		{
-			input:     "xxx",
+			input:     []string{"xxx"},
 			chunkSize: 0,
 			overlap:   10,
 			hasError:  true,
 		},
 		{
-			input:     "xxx",
+			input:     []string{"xxx"},
 			chunkSize: 1,
 			overlap:   10,
 			hasError:  true,
 		},
 		{
-			input:     "xxx",
+			input:     []string{"xxx"},
 			chunkSize: 1,
 			overlap:   0,
 			hasError:  false,
@@ -44,7 +44,7 @@ func TestWordChunkFactoryFunc(t *testing.T) {
 			}},
 		},
 		{
-			input:     "  xxx yyyy     z",
+			input:     []string{"  xxx yyyy", "     z"},
 			chunkSize: 1,
 			overlap:   0,
 			hasError:  false,
@@ -61,13 +61,26 @@ func TestWordChunkFactoryFunc(t *testing.T) {
 		},
 	}
 	for i, test := range tests {
-		factoryFunc := chunkfactories.WordChunkFactoryFunc(test.chunkSize, test.overlap)
-		chunks, err := factoryFunc(test.input)
+		factory, err := chunkfactories.NewParallelWordChunkFactory(test.chunkSize, test.overlap)
 		if test.hasError {
-			require.NotNil(t, err, "didn't retrieve error for test #", i)
+			require.NotNil(t, err, "although error was expected ParallelWordChunkFactory was created, test #", i)
 		} else {
 			require.Nil(t, err, "retrieve unexpected error for test #", i)
-			require.Equal(t, test.chunks, chunks, "retrieved chunks are not equal in test #", i)
+			txtInputChan := make(chan string)
+			outputChan, err := factory.Init(txtInputChan)
+			require.Nil(t, err)
+			go factory.Run()
+			go func() {
+				for _, text := range test.input {
+					txtInputChan <- text
+				}
+				close(txtInputChan)
+			}()
+			retrieved := make([]schema.Document, 0)
+			for output := range outputChan {
+				retrieved = append(retrieved, output)
+			}
+			require.Equal(t, test.chunks, retrieved, "retrieved chunks are not equal in test #", i)
 		}
 	}
 }

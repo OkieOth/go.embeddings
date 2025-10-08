@@ -3,7 +3,7 @@ package stores
 import (
 	"context"
 	"fmt"
-	"okieoth/schemaguesser/pkg/create"
+	"okieoth/goembeddings/pkg/create"
 
 	"github.com/tmc/langchaingo/embeddings"
 	"github.com/tmc/langchaingo/schema"

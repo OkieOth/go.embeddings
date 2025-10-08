@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"okieoth/schemaguesser/cmd/embeddings/sub"
+	"okieoth/goembeddings/cmd/embeddings/sub"
 
 	"github.com/spf13/cobra"
 )
@@ -12,7 +12,11 @@ var rootCmd = &cobra.Command{
 	Short: "Tool to generate and query embeddings",
 	Long:  `A tool to support creating and investigating embeddings`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("embeddings - call the tool with one of the provided sub commands")
+		if cmdToRun, _, err := sub.RunInteractive(cmd); err != nil {
+			fmt.Println("Error while running program interactive:", err)
+		} else {
+			cmdToRun.Run(cmdToRun, args)
+		}
 	},
 }
 

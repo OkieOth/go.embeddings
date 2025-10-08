@@ -8,10 +8,24 @@ import (
 )
 
 func TestPdfToText(t *testing.T) {
-	path := "../../resources/examples/pdf/gr07-txt.pdf"
-	expectedTxtLen := 1025737
-	providerFunc := providers.PdfToText(path)
-	txt, err := providerFunc()
-	require.Nil(t, err, "error while converting pdf to txt", err)
-	require.Equal(t, expectedTxtLen, len(txt), "wrong text len size")
+	tests := []struct {
+		input       string
+		expectedLen int
+	}{
+		{
+			input:       "../../resources/examples/pdf/gr07-txt.pdf",
+			expectedLen: 1025737,
+		},
+		{
+			input:       "../../resources/examples/pdf/schachnovelle.pdf",
+			expectedLen: 158918,
+		},
+	}
+	for _, test := range tests {
+		providerFunc := providers.PdfToText(test.input)
+		txt, err := providerFunc()
+		require.Nil(t, err, "error while converting pdf to txt", err)
+		require.Equal(t, test.expectedLen, len(txt), "wrong text len size")
+
+	}
 }

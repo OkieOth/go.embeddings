@@ -33,7 +33,7 @@ func NewEmbeddingsFactory(
 	}
 }
 
-func (e *EmbeddingsFactory) run() (int, error) {
+func (e *EmbeddingsFactory) Run() (int, error) {
 	text, err := e.textProvider()
 	if err != nil {
 		return 0, fmt.Errorf("error while retrieving input for the embeddings: %v", err)

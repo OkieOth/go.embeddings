@@ -8,11 +8,6 @@ import (
 	"github.com/tmc/langchaingo/schema"
 )
 
-type DocTransport struct {
-	Docs []schema.Document
-	Err  *error
-}
-
 type StoreResult struct {
 	StoreCount int
 	Err        *error
@@ -20,12 +15,12 @@ type StoreResult struct {
 
 type TextProviderIter func(yield func(string) bool)
 type ParallelChunkFactory interface {
-	Init(in chan<- string) (<-chan DocTransport, error)
+	Init(in <-chan string) (<-chan schema.Document, error)
 	Run()
 }
 
 type ParallelStoreImpl interface {
-	Init(embedder *embeddings.EmbedderImpl, in <-chan []schema.Document) (chan StoreResult, error)
+	Init(embedder *embeddings.EmbedderImpl, in <-chan schema.Document) (chan StoreResult, error)
 	Run()
 }
 
@@ -50,9 +45,8 @@ func NewParallelEmbeddingsFactory(
 	}
 }
 
-func (e *ParallelEmbeddingsFactory) run() (int, error) {
+func (e *ParallelEmbeddingsFactory) Run() (int, error) {
 	sendTextChan := make(chan string)
-	sendDocsChan := make(chan []schema.Document)
 	rcvChunksChan, err := e.chunkFactory.Init(sendTextChan)
 	if err != nil {
 		return 0, fmt.Errorf("can't init chunkFactory: %v", err)
@@ -68,22 +62,13 @@ func (e *ParallelEmbeddingsFactory) run() (int, error) {
 		return 0, fmt.Errorf("error while creating new embedder: %v", err)
 	}
 
-	doneChan, err := e.storeImpl.Init(embedder, sendDocsChan)
+	doneChan, err := e.storeImpl.Init(embedder, rcvChunksChan)
 	if err != nil {
 		return 0, fmt.Errorf("can't init store implementation: %v", err)
 	}
 	go e.chunkFactory.Run()
 	go e.storeImpl.Run()
 
-	go func() {
-		for c := range rcvChunksChan {
-			if c.Err != nil {
-				// TODO handle error
-			} else {
-				sendDocsChan <- c.Docs
-			}
-		}
-	}()
 	for t := range e.textProviderIter {
 		sendTextChan <- t
 	}

@@ -1,7 +1,7 @@
 services:
   ollama:
     image: ollama/ollama:latest
-    container_name: ollama
+    command: serve
     ports:
       - "11435:11434" # Exposes Ollama API on localhost:11434
     volumes:
@@ -14,8 +14,8 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: admin
-      POSTGRES_USER: secretpassword
+      POSTGRES_PASSWORD: secretpassword
+      POSTGRES_USER: admin
       POSTGRES_DB: testdb
     volumes:
       - ./psql/data/postgres:/var/lib/postgresql/data
